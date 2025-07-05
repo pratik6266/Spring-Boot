@@ -1,3 +1,9 @@
 spring:
   profiles:
     active: dev
+
+logging:
+  level:
+    com.project.journalAPP:
+      PublicController: DEBUG
+#    root: ERROR # this will stop the logs of whole application

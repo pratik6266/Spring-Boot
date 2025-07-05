@@ -2,11 +2,16 @@ package com.project.journalApp.controller;
 
 import com.project.journalApp.entity.User;
 import com.project.journalApp.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/public")
 public class PublicController {
@@ -33,6 +38,7 @@ public class PublicController {
             return new ResponseEntity<User>(user, HttpStatus.CREATED);
         }
         catch (Exception e) {
+            log.error("Error creating user: ", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
