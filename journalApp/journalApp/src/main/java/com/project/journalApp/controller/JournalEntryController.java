@@ -8,6 +8,8 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,9 +25,11 @@ public class JournalEntryController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("{userId}")
-    public ResponseEntity<List<JournalEntry>> getAll(@PathVariable ObjectId userId){
-        User user = userService.getUser(userId);
+    @GetMapping
+    public ResponseEntity<List<JournalEntry>> getAll(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userService.getUserByUsername(username);
         if(user == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -36,14 +40,15 @@ public class JournalEntryController {
         return new ResponseEntity<List<JournalEntry>>(data, HttpStatus.OK);
     }
 
-    @PostMapping("{userId}")
-    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry myEntry,
-                                                    @PathVariable ObjectId userId){
+    @PostMapping
+    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry myEntry){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
         try {
-            if(userId == null){
+            if(username == null){
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-            User user = userService.getUser(userId);
+            User user = userService.getUserByUsername(username);
             if(user == null){
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -59,22 +64,24 @@ public class JournalEntryController {
         }
     }
 
-    @GetMapping("/id/{myId}")
-    public ResponseEntity<JournalEntry> findEntry(@PathVariable ObjectId myId){
-        Optional<JournalEntry> data = journalEntryService.findById(myId);
-        if(data.isPresent()){
-            return new ResponseEntity<JournalEntry>(data.get(), HttpStatus.OK);
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Boolean> getEntryById(@PathVariable ObjectId id){
+        Optional<JournalEntry> entry = journalEntryService.findById(id);
+        if(entry.isEmpty()){
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
-    @DeleteMapping("/id/{username}/{id}")
-    public ResponseEntity<Boolean> deleteEntryById(@PathVariable ObjectId id, @PathVariable String username){
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Boolean> deleteEntryById(@PathVariable ObjectId id){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
         boolean b = journalEntryService.deleteById(id, username);
         if(!b){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(b, HttpStatus.OK);
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
     @PutMapping("/id/{myId}")

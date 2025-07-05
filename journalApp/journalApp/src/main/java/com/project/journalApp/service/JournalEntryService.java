@@ -22,9 +22,10 @@ public class JournalEntryService {
 
     @Transactional
     public void saveEntry(JournalEntry journalEntry, User user){
-        JournalEntry save = journalEntryRepository.save(journalEntry);
-        user.getJournalEntries().add(save);
-        userService.saveUser(user);
+        JournalEntry savedEntry = journalEntryRepository.save(journalEntry);
+        User userFromDb = userService.getUserByUsername(user.getUsername());
+        userFromDb.getJournalEntries().add(savedEntry);
+        userService.saveExistingUser(userFromDb);
     }
 
     public void saveEntry2(JournalEntry journalEntry){
@@ -49,7 +50,7 @@ public class JournalEntryService {
             User user = userService.getUserByUsername(username);
             if(user != null) {
                 user.getJournalEntries().remove(entry.get());
-                userService.saveUser(user);
+                userService.saveExistingUser(user);
                 return true;
             }
             else return false;

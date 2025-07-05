@@ -33,6 +33,10 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void saveExistingUser(User user){
+        userRepository.save(user);
+    }
+
     public User getUser(ObjectId userId){
         return userRepository.findById(userId).orElse(null);
     }
