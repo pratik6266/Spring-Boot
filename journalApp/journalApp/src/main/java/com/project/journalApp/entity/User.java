@@ -24,4 +24,12 @@ public class User {
     @DBRef
     private List<JournalEntry> journalEntries = new ArrayList<JournalEntry>();
     private List<String> roles;
+
+    public User(@NonNull String username) {
+        this.username = username;
+    }
+
+    public User() {
+
+    }
 }

@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: journalApp
+  data:
+    mongodb:
+      uri: mongodb+srv://Pratik:Pratik5722@cluster0.s79v2th.mongodb.net/journaldb?retryWrites=true&w=majority&appName=Cluster0
+      auto-index-creation: true
