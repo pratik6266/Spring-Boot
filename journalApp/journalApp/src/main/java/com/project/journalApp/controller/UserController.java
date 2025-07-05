@@ -6,8 +6,11 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Security;
 import java.util.List;
 
 @RestController
@@ -17,53 +20,16 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(){
-        return new ResponseEntity<List<User>>(userService.getAll(), HttpStatus.OK);
-    }
-
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user){
-        try {
-            if (user == null) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-            User existingUser = userService.getUserByUsername(user.getUsername());
-            if (existingUser != null) {
-                return new ResponseEntity<>(HttpStatus.CONFLICT);
-            }
-            userService.saveUser(user);
-            return new ResponseEntity<User>(user, HttpStatus.CREATED);
-        }
-        catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/id/{userId}")
-    public ResponseEntity<User> getUserById(@PathVariable ObjectId userId){
-        try {
-            if(userId == null){
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-            User data = userService.getUser(userId);
-            if(data == null){
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<User>(data, HttpStatus.OK);
-        }
-        catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PutMapping("/id/{userId}")
-    public ResponseEntity<User> updateUserById(@PathVariable ObjectId userId, @RequestBody User user){
+    @PutMapping("/user-update")
+    public ResponseEntity<User> updateUserById(@RequestBody User user){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        System.out.println(username);
         try{
-            if(userId == null || user == null || user.getUsername() == null || user.getPassword() == null){
+            if(username == null || user == null){
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-            User existingUser = userService.getUser(userId);
+            User existingUser = userService.getUserByUsername(username);
             if(existingUser == null){
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
@@ -77,21 +43,20 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/id/{userId}")
-    public ResponseEntity<Boolean> deleteUserById(@PathVariable ObjectId userId){
-        try {
-            if(userId == null){
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @DeleteMapping("/user-delete")
+    public ResponseEntity<Boolean> deleteUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        try{
+            User user = userService.getUserByUsername(username);
+            if(user == null){
+                return new ResponseEntity<Boolean>(false, HttpStatus.NOT_FOUND);
             }
-            User existingUser = userService.getUser(userId);
-            if(existingUser == null){
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            userService.deleteById(userId);
+            userService.deleteUserByUsername(username);
             return new ResponseEntity<Boolean>(true, HttpStatus.OK);
         }
         catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
