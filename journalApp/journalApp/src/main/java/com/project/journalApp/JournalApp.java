@@ -27,3 +27,6 @@ public class JournalApp {
 		return new RestTemplate();
 	}
 }
+
+
+
