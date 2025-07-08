@@ -5,3 +5,14 @@ spring:
     mongodb:
       uri: mongodb+srv://Pratik:Pratik5722@cluster0.s79v2th.mongodb.net/journaldb?retryWrites=true&w=majority&appName=Cluster0
       auto-index-creation: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: pratikraj220011@gmail.com
+    password: jmwewaobxhwgejkp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
