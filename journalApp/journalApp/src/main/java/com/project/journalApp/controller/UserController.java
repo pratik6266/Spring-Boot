@@ -1,6 +1,9 @@
 package com.project.journalApp.controller;
 
+import com.project.journalApp.Scheduler.EmailSchedular;
 import com.project.journalApp.entity.User;
+import com.project.journalApp.repository.UserRepositoryImpl;
+import com.project.journalApp.service.EmailService;
 import com.project.journalApp.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailSchedular emailSchedular;
 
     @PutMapping("/user-update")
     public ResponseEntity<User> updateUserById(@RequestBody User user){
@@ -59,4 +65,10 @@ public class UserController {
             return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/send-mail")
+    public ResponseEntity<?> sendMailToUsersForSA(){
+        emailSchedular.fetchUsersAndSendEmail();
+        return new ResponseEntity<>("Emails sent successfully", HttpStatus.OK);
+		}
 }

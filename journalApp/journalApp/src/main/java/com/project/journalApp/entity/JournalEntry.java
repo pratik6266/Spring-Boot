@@ -1,5 +1,6 @@
 package com.project.journalApp.entity;
 
+import com.project.journalApp.Enum.SentimentEnum;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -17,4 +18,5 @@ public class JournalEntry {
     private String title;
     private String content;
     private Date date;
+    private SentimentEnum sentiment;
 }
